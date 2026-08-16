@@ -69,13 +69,13 @@ Three core pillars, all on WhatsApp:
 
 ## 📌 Project Context
 
-- **Founder:** Hawanatu Kargbo
-- **Contact:** 076988619 · oswokceo@gmail.com
+- **Founder:** Albert Taylor 
+- **Contact:** 076988619 · oswokaiceo@gmail.com
 - **Recognition:** Orange Social Ventures Prize 2026 Finalist
 
 ## 📄 License
 
-This project is the intellectual property of Hawanatu Kargbo. The landing page code is open for viewing. The full application runs on the Base44 platform at [oswok.base44.app](https://oswok.base44.app).
+This project is the intellectual property of Albert Taylor. The landing page code is open for viewing. The full application runs on the Base44 platform at [oswok.base44.app](https://oswok.base44.app).
 
 ---
 
