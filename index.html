@@ -3,59 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Oswok AI</title>
+<title>Oswok AI — Economic Mobility Engine</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#f3ede1;color:#2a251e;line-height:1.65;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#f5f5f5;color:#1a1a1a;line-height:1.65;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 
-.accent-line{height:3px;background:#a06b32;width:100%}
-.wrap{max-width:760px;margin:0 auto;padding:0 24px}
+.accent-line{height:4px;background:linear-gradient(90deg,#ff8800,#ff6b00);width:100%}
+.wrap{max-width:800px;margin:0 auto;padding:0 24px}
 
-.hero{padding:56px 0 36px;background:linear-gradient(180deg, #f3ede1 0%, #faf6ee 100%);border-radius:0 0 12px 12px;margin-bottom:40px}
-.hero .tag{font-size:13px;color:#a06b32;margin-bottom:18px;letter-spacing:0.5px;font-weight:600}
-.hero h1{font-family:Georgia,'Times New Roman',serif;font-size:44px;font-weight:600;letter-spacing:-1.2px;line-height:1.1;margin-bottom:16px}
-.hero .desc{font-size:17px;color:#6b6253;max-width:520px;margin-bottom:28px;line-height:1.6}
+/* Hero */
+.hero{padding:56px 0 40px;background:linear-gradient(180deg,#f5f5f5 0%,#fff 100%);border-radius:0 0 16px 16px;margin-bottom:44px}
+.hero .brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.hero .logo{width:44px;height:44px;background:#ff8800;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:700}
+.hero .brand-name{font-size:20px;font-weight:700;color:#1a1a1a}
+.hero .tag{font-size:13px;color:#ff8800;margin-bottom:18px;font-weight:600;letter-spacing:0.3px}
+.hero h1{font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1.12;margin-bottom:16px;max-width:560px}
+.hero .desc{font-size:17px;color:#555;max-width:520px;margin-bottom:28px;line-height:1.6}
+.hero .status{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#078f3e;margin-bottom:24px;font-weight:500}
+.hero .status .dot{width:8px;height:8px;background:#078f3e;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero .tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.hero .tag-pill{font-size:12px;color:#555;padding:5px 14px;background:#fff;border:1px solid #e0e0e0;border-radius:100px;font-weight:500}
 .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
-.hero .cta a{display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;border-radius:4px;transition:all 0.25s}
-.hero .cta .p{background:#a06b32;color:#fff;border:1px solid #a06b32}
-.hero .cta .p:hover{opacity:0.88;transform:translateY(-1px)}
-.hero .cta .s{background:transparent;color:#2a251e;border:1px solid #ddd5c3}
-.hero .cta .s:hover{background:#faf6ee;border-color:#a06b32}
+.hero .cta a{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;font-size:14px;font-weight:600;border-radius:6px;transition:all 0.25s}
+.hero .cta .p{background:#1a1a1a;color:#fff;border:1px solid #1a1a1a}
+.hero .cta .p:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.2)}
+.hero .cta .s{background:#fff;color:#1a1a1a;border:1px solid #ddd}
+.hero .cta .s:hover{border-color:#ff8800;color:#ff8800;transform:translateY(-1px)}
+.hero .note{font-size:12px;color:#999;margin-top:14px}
 
-.stats{display:flex;gap:0;padding:24px 0;border-top:1px solid #ddd5c3;border-bottom:1px solid #ddd5c3;margin-bottom:48px}
-.stat{flex:1;text-align:center;padding:0 12px;border-right:1px solid #ddd5c3}
+/* Stats */
+.stats{display:flex;gap:0;padding:24px 0;border-top:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;margin-bottom:48px}
+.stat{flex:1;text-align:center;padding:0 12px;border-right:1px solid #e0e0e0}
 .stat:last-child{border-right:none}
-.stat-v{font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:600;color:#a06b32;display:block;line-height:1}
-.stat-l{font-size:11px;color:#a09888;letter-spacing:1.5px;text-transform:uppercase;margin-top:8px;display:block}
+.stat-v{font-size:30px;font-weight:700;color:#ff8800;display:block;line-height:1}
+.stat-l{font-size:11px;color:#999;letter-spacing:1.5px;text-transform:uppercase;margin-top:8px;display:block}
 
+/* Section */
 .sec{padding-bottom:48px}
-.sec-title{font-family:Georgia,'Times New Roman',serif;font-size:13px;color:#a06b32;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;font-weight:700}
+.sec-title{font-size:13px;color:#ff8800;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;font-weight:700}
 
+/* Cards */
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.card{background:#faf6ee;border:1px solid #ddd5c3;border-radius:6px;padding:22px;transition:all 0.25s;box-shadow:0 2px 12px #a06b3210}
-.card:hover{border-color:#a06b32;box-shadow:0 4px 20px #a06b3215;transform:translateY(-2px)}
-.card-n{font-family:Georgia,'Times New Roman',serif;font-size:12px;color:#fff;display:inline-block;margin-bottom:10px;font-weight:600;padding:2px 8px;background:#a06b32;border-radius:3px}
-.card h3{font-size:15px;font-weight:600;margin-bottom:8px}
-.card p{font-size:13px;color:#6b6253;line-height:1.55}
+.card{background:#fff;border:1px solid #e8e8e8;border-radius:8px;padding:22px;transition:all 0.25s;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.card:hover{border-color:#ff8800;box-shadow:0 4px 20px rgba(255,136,0,0.12);transform:translateY(-2px)}
+.card-n{font-size:12px;color:#fff;background:#ff8800;display:inline-block;margin-bottom:10px;font-weight:600;padding:3px 10px;border-radius:100px}
+.card h3{font-size:15px;font-weight:600;margin-bottom:8px;color:#1a1a1a}
+.card p{font-size:13px;color:#666;line-height:1.55}
 
+/* Flow section */
+.flow{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:28px;margin-bottom:48px;text-align:center}
+.flow h2{font-size:20px;font-weight:700;margin-bottom:20px;color:#1a1a1a}
+.flow-steps{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+.flow-step{display:flex;flex-direction:column;align-items:center;gap:6px}
+.flow-icon{width:56px;height:56px;background:#fff5e6;border:1px solid #ffcc80;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.flow-label{font-size:13px;font-weight:600;color:#1a1a1a}
+.flow-arrow{font-size:20px;color:#ff8800;font-weight:300}
+
+/* Stack */
 .stack{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:40px}
-.stack span{font-size:13px;color:#6b6253;padding:7px 16px;border:1px solid #ddd5c3;border-radius:3px;background:#faf6ee;transition:border-color 0.2s}
-.stack span:hover{border-color:#a06b32}
+.stack span{font-size:13px;color:#555;padding:7px 16px;border:1px solid #e0e0e0;border-radius:4px;background:#fff;transition:border-color 0.2s}
+.stack span:hover{border-color:#ff8800;color:#ff8800}
 
-.footer{border-top:1px solid #ddd5c3;padding:28px 0;font-size:13px;color:#a09888;display:flex;justify-content:space-between;align-items:center}
-.footer a{color:#6b6253;transition:color 0.2s}
-.footer a:hover{color:#a06b32}
+/* Footer */
+.footer{border-top:1px solid #e0e0e0;padding:28px 0;font-size:13px;color:#999;display:flex;justify-content:space-between;align-items:center}
+.footer a{color:#666;transition:color 0.2s}
+.footer a:hover{color:#ff8800}
 
 @media(max-width:600px){
-.hero{padding:48px 0 28px}
+.hero{padding:48px 0 32px}
 .hero h1{font-size:30px}
 .cards{grid-template-columns:1fr}
 .stats{flex-wrap:wrap;gap:12px}
-.stat{flex:1 1 40%;border-right:none;border-bottom:1px solid #ddd5c3;padding-bottom:10px;margin-bottom:10px}
+.stat{flex:1 1 40%;border-right:none;border-bottom:1px solid #e0e0e0;padding-bottom:10px;margin-bottom:10px}
 .stat:last-child{border-bottom:none}
 .footer{flex-direction:column;gap:8px;text-align:center}
+.flow-steps{flex-direction:column}
+.flow-arrow{transform:rotate(90deg)}
 }
 </style>
 </head>
@@ -63,46 +89,88 @@ a{color:inherit;text-decoration:none}
 <div class="accent-line"></div>
 <div class="wrap">
 <div class="hero">
+<div class="brand">
+<div class="logo">O</div>
+<div class="brand-name">Oswok AI</div>
+</div>
 <div class="tag">Turn human potential into income. On WhatsApp.</div>
-<h1>Oswok AI</h1>
-<p class="desc">An economic mobility engine for young people across Africa. Skill discovery, micro-learning, verified tasks, and a Digital Work Passport.</p>
+<h1>The AI-powered economic mobility engine</h1>
+<p class="desc">We transform human potential into verified income opportunities — skill discovery, micro-learning, verified tasks, and a Digital Work Passport, all in one WhatsApp conversation. Built for underserved youth across Africa.</p>
+<div class="status"><span class="dot"></span> Member experience — live demo</div>
+<div class="tags">
+<span class="tag-pill">AI career pathway</span>
+<span class="tag-pill">Learn → Verify → Earn</span>
+<span class="tag-pill">Digital Work Passport</span>
+</div>
 <div class="cta">
-<a class="p" href="https://github.com/crptoangel232/oswok-ai" target="_blank">View Source</a>
-<a class="s" href="https://crptoangel232.github.io/My-Portfolio-Website/">Portfolio</a>
+<a class="p" href="https://oswok.base44.app" target="_blank">Open Live Demo →</a>
+<a class="s" href="https://github.com/crptoangel232/oswok-ai" target="_blank">View Source</a>
+</div>
+<div class="note">Login required · role-based access</div>
+</div>
+<div class="stats">
+<div class="stat"><span class="stat-v">6</span><span class="stat-l">Modules</span></div>
+<div class="stat"><span class="stat-v">1</span><span class="stat-l">WhatsApp OS</span></div>
+<div class="stat"><span class="stat-v">100%</span><span class="stat-l">Mobile First</span></div>
+</div>
+<div class="sec">
+<div class="sec-title">How It Works</div>
+<div class="flow">
+<h2>Learn → Verify → Earn</h2>
+<div class="flow-steps">
+<div class="flow-step"><div class="flow-icon">💬</div><div class="flow-label">Chat on WhatsApp</div></div>
+<span class="flow-arrow">→</span>
+<div class="flow-step"><div class="flow-icon">📚</div><div class="flow-label">Learn Skills</div></div>
+<span class="flow-arrow">→</span>
+<div class="flow-step"><div class="flow-icon">✓</div><div class="flow-label">Get Verified</div></div>
+<span class="flow-arrow">→</span>
+<div class="flow-step"><div class="flow-icon">💸</div><div class="flow-label">Earn Income</div></div>
 </div>
 </div>
-<div class="stats"><div class="stat"><span class="stat-v">6</span><span class="stat-l">Modules</span></div><div class="stat"><span class="stat-v">1</span><span class="stat-l">WhatsApp OS</span></div><div class="stat"><span class="stat-v">100%</span><span class="stat-l">Mobile First</span></div></div>
+</div>
 <div class="sec">
 <div class="sec-title">What It Does</div>
-<div class="cards"><div class="card">
+<div class="cards">
+<div class="card">
 <span class="card-n">01</span>
 <h3>Skill Discovery</h3>
 <p>AI matches users to skills they can learn and work they can do right now.</p>
-</div><div class="card">
+</div>
+<div class="card">
 <span class="card-n">02</span>
 <h3>Micro-Learning</h3>
 <p>Bite-sized lessons through WhatsApp. No app store. No bandwidth fights.</p>
-</div><div class="card">
+</div>
+<div class="card">
 <span class="card-n">03</span>
 <h3>Verified Tasks</h3>
 <p>Real micro-jobs with reputation tracking and employer matching.</p>
-</div><div class="card">
+</div>
+<div class="card">
 <span class="card-n">04</span>
 <h3>Digital Work Passport</h3>
 <p>A portable, verified record of skills, work history, and ratings.</p>
-</div><div class="card">
+</div>
+<div class="card">
 <span class="card-n">05</span>
 <h3>Mobile Money</h3>
 <p>Earn and cash out through mobile money. No bank account required.</p>
-</div><div class="card">
+</div>
+<div class="card">
 <span class="card-n">06</span>
 <h3>Built for Africa</h3>
 <p>Low bandwidth. Low-end devices. WhatsApp-first. Designed around how people actually work.</p>
-</div></div>
+</div>
+</div>
 </div>
 <div class="sec">
 <div class="sec-title">Built With</div>
-<div class="stack"><span>TypeScript</span><span>AI</span><span>WhatsApp</span><span>Base44</span></div>
+<div class="stack">
+<span>TypeScript</span>
+<span>AI</span>
+<span>WhatsApp</span>
+<span>Base44</span>
+</div>
 </div>
 </div>
 <div class="wrap">
