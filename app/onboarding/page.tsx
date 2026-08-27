@@ -10,12 +10,13 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, role, status')
+    .select('full_name, role, status, onboarding_completed')
     .eq('id', claimsData.claims.sub)
     .maybeSingle()
 
-  if (profile?.status === 'suspended') redirect('/login?error=This account is suspended.')
-  if (profile?.role === 'employer') redirect('/dashboard')
+  if (!profile) redirect('/login?error=We could not find your Oswok profile.')
+  if (profile.status === 'suspended') redirect('/login?error=This account is suspended.')
+  if (profile.onboarding_completed) redirect('/dashboard')
 
   const params = await searchParams
 
@@ -27,7 +28,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         <p className="mt-3 text-slate-400">Choose whether you are here to find work or hire people. This controls the first version of your Oswok experience.</p>
         {params.error ? <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">{params.error}</div> : null}
         <div className="mt-7">
-          <OnboardingForm defaultName={profile?.full_name ?? ''} />
+          <OnboardingForm defaultName={profile.full_name ?? ''} />
         </div>
       </div>
     </main>
