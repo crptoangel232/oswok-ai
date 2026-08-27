@@ -1,0 +1,31 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  public: {
+    Tables: {
+      profiles: { Row: { id: string; full_name: string | null; phone: string | null; role: Database['public']['Enums']['user_role']; status: Database['public']['Enums']['account_status']; verification_status: Database['public']['Enums']['verification_status']; avatar_url: string | null; location: string | null; bio: string | null; created_at: string; updated_at: string }; Insert: Partial<Omit<Database['public']['Tables']['profiles']['Row'], 'id'>> & { id: string }; Update: Partial<Database['public']['Tables']['profiles']['Row']>; Relationships: [] };
+      skills: { Row: { id: string; name: string; category: string | null; created_at: string }; Insert: { id?: string; name: string; category?: string | null; created_at?: string }; Update: Partial<Database['public']['Tables']['skills']['Insert']>; Relationships: [] };
+      worker_profiles: { Row: { user_id: string; availability: string | null; hourly_rate: number | null; experience_years: number | null; created_at: string; updated_at: string }; Insert: { user_id: string; availability?: string | null; hourly_rate?: number | null; experience_years?: number | null }; Update: Partial<Database['public']['Tables']['worker_profiles']['Insert']>; Relationships: [] };
+      worker_skills: { Row: { worker_id: string; skill_id: string; created_at: string }; Insert: { worker_id: string; skill_id: string; created_at?: string }; Update: Partial<Database['public']['Tables']['worker_skills']['Insert']>; Relationships: [] };
+      employer_profiles: { Row: { user_id: string; organisation_name: string | null; organisation_type: string | null; website: string | null; created_at: string; updated_at: string }; Insert: { user_id: string; organisation_name?: string | null; organisation_type?: string | null; website?: string | null }; Update: Partial<Database['public']['Tables']['employer_profiles']['Insert']>; Relationships: [] };
+      jobs: { Row: { id: string; employer_id: string; title: string; description: string; category: string | null; location: string | null; pay_amount: number; pay_currency: string; status: Database['public']['Enums']['job_status']; created_at: string; updated_at: string }; Insert: { id?: string; employer_id: string; title: string; description: string; category?: string | null; location?: string | null; pay_amount: number; pay_currency?: string; status?: Database['public']['Enums']['job_status'] }; Update: Partial<Database['public']['Tables']['jobs']['Insert']>; Relationships: [] };
+      job_skills: { Row: { job_id: string; skill_id: string; required: boolean }; Insert: { job_id: string; skill_id: string; required?: boolean }; Update: Partial<Database['public']['Tables']['job_skills']['Insert']>; Relationships: [] };
+      applications: { Row: { id: string; job_id: string; worker_id: string; status: Database['public']['Enums']['application_status']; cover_note: string | null; created_at: string; updated_at: string }; Insert: { id?: string; job_id: string; worker_id: string; status?: Database['public']['Enums']['application_status']; cover_note?: string | null }; Update: Partial<Database['public']['Tables']['applications']['Insert']>; Relationships: [] };
+      matches: { Row: { id: string; job_id: string; worker_id: string; score: number | null; reason: string | null; created_at: string }; Insert: { id?: string; job_id: string; worker_id: string; score?: number | null; reason?: string | null }; Update: Partial<Database['public']['Tables']['matches']['Insert']>; Relationships: [] };
+      transactions: { Row: { id: string; job_id: string | null; worker_id: string; employer_id: string; amount: number; currency: string; status: string; provider: string | null; provider_reference: string | null; created_at: string; updated_at: string }; Insert: { id?: string; job_id?: string | null; worker_id: string; employer_id: string; amount: number; currency?: string; status?: string; provider?: string | null; provider_reference?: string | null }; Update: Partial<Database['public']['Tables']['transactions']['Insert']>; Relationships: [] };
+      reviews: { Row: { id: string; transaction_id: string; reviewer_id: string; reviewee_id: string; rating: number; comment: string | null; created_at: string }; Insert: { id?: string; transaction_id: string; reviewer_id: string; reviewee_id: string; rating: number; comment?: string | null }; Update: Partial<Database['public']['Tables']['reviews']['Insert']>; Relationships: [] };
+      disputes: { Row: { id: string; transaction_id: string | null; opened_by: string; reason: string; description: string; status: string; resolution: string | null; created_at: string; updated_at: string }; Insert: { id?: string; transaction_id?: string | null; opened_by: string; reason: string; description: string; status?: string; resolution?: string | null }; Update: Partial<Database['public']['Tables']['disputes']['Insert']>; Relationships: [] };
+      audit_logs: { Row: { id: number; actor_id: string | null; action: string; entity_type: string; entity_id: string | null; metadata: Json; created_at: string }; Insert: { actor_id?: string | null; action: string; entity_type: string; entity_id?: string | null; metadata?: Json }; Update: Partial<Database['public']['Tables']['audit_logs']['Insert']>; Relationships: [] };
+    };
+    Views: Record<string, never>;
+    Functions: { is_admin: { Args: Record<string, never>; Returns: boolean } };
+    Enums: {
+      user_role: 'worker' | 'employer' | 'admin';
+      account_status: 'active' | 'suspended' | 'pending';
+      job_status: 'draft' | 'open' | 'paused' | 'filled' | 'closed' | 'cancelled';
+      application_status: 'pending' | 'shortlisted' | 'accepted' | 'rejected' | 'withdrawn';
+      verification_status: 'unverified' | 'pending' | 'verified' | 'rejected';
+    };
+    CompositeTypes: Record<string, never>;
+  };
+};
