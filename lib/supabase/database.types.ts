@@ -3,7 +3,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
-      profiles: { Row: { id: string; full_name: string | null; phone: string | null; role: Database['public']['Enums']['user_role']; status: Database['public']['Enums']['account_status']; verification_status: Database['public']['Enums']['verification_status']; avatar_url: string | null; location: string | null; bio: string | null; created_at: string; updated_at: string }; Insert: Partial<Omit<Database['public']['Tables']['profiles']['Row'], 'id'>> & { id: string }; Update: Partial<Database['public']['Tables']['profiles']['Row']>; Relationships: [] };
+      profiles: { Row: { id: string; full_name: string | null; phone: string | null; role: Database['public']['Enums']['user_role']; status: Database['public']['Enums']['account_status']; verification_status: Database['public']['Enums']['verification_status']; avatar_url: string | null; location: string | null; bio: string | null; onboarding_completed: boolean; created_at: string; updated_at: string }; Insert: Partial<Omit<Database['public']['Tables']['profiles']['Row'], 'id'>> & { id: string }; Update: Partial<Database['public']['Tables']['profiles']['Row']>; Relationships: [] };
       skills: { Row: { id: string; name: string; category: string | null; created_at: string }; Insert: { id?: string; name: string; category?: string | null; created_at?: string }; Update: Partial<Database['public']['Tables']['skills']['Insert']>; Relationships: [] };
       worker_profiles: { Row: { user_id: string; availability: string | null; hourly_rate: number | null; experience_years: number | null; created_at: string; updated_at: string }; Insert: { user_id: string; availability?: string | null; hourly_rate?: number | null; experience_years?: number | null }; Update: Partial<Database['public']['Tables']['worker_profiles']['Insert']>; Relationships: [] };
       worker_skills: { Row: { worker_id: string; skill_id: string; created_at: string }; Insert: { worker_id: string; skill_id: string; created_at?: string }; Update: Partial<Database['public']['Tables']['worker_skills']['Insert']>; Relationships: [] };
@@ -18,7 +18,7 @@ export type Database = {
       audit_logs: { Row: { id: number; actor_id: string | null; action: string; entity_type: string; entity_id: string | null; metadata: Json; created_at: string }; Insert: { actor_id?: string | null; action: string; entity_type: string; entity_id?: string | null; metadata?: Json }; Update: Partial<Database['public']['Tables']['audit_logs']['Insert']>; Relationships: [] };
     };
     Views: Record<string, never>;
-    Functions: { is_admin: { Args: Record<string, never>; Returns: boolean } };
+    Functions: { is_admin: { Args: Record<string, never>; Returns: boolean }; set_my_role: { Args: { new_role: Database['public']['Enums']['user_role'] }; Returns: Database['public']['Enums']['user_role'] } };
     Enums: {
       user_role: 'worker' | 'employer' | 'admin';
       account_status: 'active' | 'suspended' | 'pending';
