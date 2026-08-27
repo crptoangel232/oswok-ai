@@ -1,31 +1,28 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import type { Database } from "./database.types";
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import type { Database } from './database.types'
 
 export async function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const cookieStore = await cookies()
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  if (!url || !anonKey) {
-    throw new Error("Supabase environment variables are not configured.");
+  if (!url || !key) {
+    throw new Error('Missing Supabase environment variables')
   }
 
-  const cookieStore = await cookies();
-
-  return createServerClient<Database>(url, anonKey, {
+  return createServerClient<Database>(url, key, {
     cookies: {
       getAll() {
-        return cookieStore.getAll();
+        return cookieStore.getAll()
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
         } catch {
-          // Server Components may not be able to write cookies. Middleware handles refresh.
+          // Server Components cannot always write cookies. The proxy handles refreshes.
         }
       },
     },
-  });
+  })
 }
