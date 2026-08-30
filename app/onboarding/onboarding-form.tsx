@@ -3,17 +3,28 @@
 import { useState } from 'react'
 import { completeOnboarding } from './actions'
 
-export default function OnboardingForm({ defaultName }: { defaultName: string }) {
-  const [role, setRole] = useState<'worker' | 'employer'>('worker')
+type Role = 'worker' | 'employer'
+
+export default function OnboardingForm({ defaultName, initialRole = 'worker' }: { defaultName: string; initialRole?: Role }) {
+  const [role, setRole] = useState<Role>(initialRole)
 
   return (
     <form action={completeOnboarding} className="space-y-5 rounded-2xl border border-white/10 bg-white/5 p-6">
       <div>
-        <label htmlFor="role" className="mb-2 block text-sm font-medium">I want to</label>
-        <select id="role" name="role" value={role} onChange={(e) => setRole(e.target.value as 'worker' | 'employer')} className="w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3">
-          <option value="worker">Find work</option>
-          <option value="employer">Hire people</option>
-        </select>
+        <p className="mb-3 text-sm font-medium">Choose your Oswok account</p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button type="button" onClick={() => setRole('worker')} className={`rounded-xl border p-4 text-left ${role === 'worker' ? 'border-cyan-300 bg-cyan-300/10' : 'border-white/10 bg-slate-900'}`}>
+            <span className="block text-xs uppercase tracking-wide text-cyan-300">Worker</span>
+            <span className="mt-1 block font-semibold">I want to find work</span>
+            <span className="mt-1 block text-xs text-slate-400">Browse jobs and apply.</span>
+          </button>
+          <button type="button" onClick={() => setRole('employer')} className={`rounded-xl border p-4 text-left ${role === 'employer' ? 'border-cyan-300 bg-cyan-300/10' : 'border-white/10 bg-slate-900'}`}>
+            <span className="block text-xs uppercase tracking-wide text-cyan-300">Employer</span>
+            <span className="mt-1 block font-semibold">I want to hire people</span>
+            <span className="mt-1 block text-xs text-slate-400">Post jobs and hire workers.</span>
+          </button>
+        </div>
+        <input type="hidden" name="role" value={role} />
       </div>
 
       <div>
@@ -44,7 +55,7 @@ export default function OnboardingForm({ defaultName }: { defaultName: string })
         </>
       ) : null}
 
-      <button type="submit" className="w-full rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950">Continue to Oswok</button>
+      <button type="submit" className="w-full rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950">Continue as {role}</button>
     </form>
   )
 }
