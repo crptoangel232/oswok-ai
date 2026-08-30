@@ -4,6 +4,8 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+type Role = 'worker' | 'employer'
+
 function errorRedirect(message: string): never {
   redirect(`/login?error=${encodeURIComponent(message)}`)
 }
@@ -36,7 +38,9 @@ export async function signup(formData: FormData) {
   const fullName = String(formData.get('fullName') ?? '').trim()
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
   const password = String(formData.get('password') ?? '')
+  const role = String(formData.get('role') ?? '') as Role
 
+  if (!['worker', 'employer'].includes(role)) errorRedirect('Choose whether you want to find work or hire people.')
   if (fullName.length < 2) errorRedirect('Enter your full name.')
   if (!email || !email.includes('@')) errorRedirect('Enter a valid email address.')
   if (password.length < 8) errorRedirect('Password must be at least 8 characters.')
@@ -48,13 +52,13 @@ export async function signup(formData: FormData) {
     email,
     password,
     options: {
-      data: { full_name: fullName },
-      emailRedirectTo: `${appUrl}/auth/confirm?next=/onboarding`,
+      data: { full_name: fullName, preferred_role: role },
+      emailRedirectTo: `${appUrl}/auth/confirm?next=/onboarding&role=${role}`,
     },
   })
 
   if (error) errorRedirect(error.message)
 
-  if (data.session) redirect('/onboarding')
+  if (data.session) redirect(`/onboarding?role=${role}`)
   redirect('/check-email')
 }
