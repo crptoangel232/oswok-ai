@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import OnboardingForm from './onboarding-form'
 
-export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string; role?: string }> }) {
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
 
@@ -15,6 +15,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
   if (profile.onboarding_completed) redirect('/dashboard')
 
   const params = await searchParams
+  const initialRole = params.role === 'employer' ? 'employer' : 'worker'
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-12 text-white">
@@ -24,7 +25,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         <p className="mt-3 text-slate-400">Choose whether you are here to find work or hire people. This controls the first version of your Oswok experience.</p>
         {params.error ? <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">{params.error}</div> : null}
         <div className="mt-7">
-          <OnboardingForm defaultName={profile.full_name ?? ''} />
+          <OnboardingForm defaultName={profile.full_name ?? ''} initialRole={initialRole} />
         </div>
       </div>
     </main>
