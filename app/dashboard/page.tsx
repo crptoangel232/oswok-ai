@@ -4,17 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
+  if (!claimsData?.claims?.sub) redirect('/login')
 
-  if (!userId) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, role, location, verification_status')
-    .eq('id', userId)
-    .maybeSingle()
-
-  if (!profile) redirect('/onboarding')
+  const { data: profile, error } = await supabase.rpc('get_my_profile').maybeSingle()
+  if (error || !profile) redirect('/onboarding')
+  if (profile.status === 'suspended') redirect('/login?error=This account is suspended.')
+  if (!profile.onboarding_completed) redirect('/onboarding')
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-10 text-white">
