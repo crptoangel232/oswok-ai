@@ -8,6 +8,15 @@ function errorRedirect(message: string): never {
   redirect(`/login?error=${encodeURIComponent(message)}`)
 }
 
+function getAppUrl(requestHeaders: Headers) {
+  const configuredUrl = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, '')
+  if (configuredUrl) return configuredUrl
+
+  const forwardedProto = requestHeaders.get('x-forwarded-proto') ?? 'http'
+  const host = requestHeaders.get('host') ?? 'localhost:3000'
+  return `${forwardedProto}://${host}`
+}
+
 export async function login(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
   const password = String(formData.get('password') ?? '')
@@ -33,17 +42,14 @@ export async function signup(formData: FormData) {
   if (password.length < 8) errorRedirect('Password must be at least 8 characters.')
 
   const requestHeaders = await headers()
-  const forwardedProto = requestHeaders.get('x-forwarded-proto') ?? 'http'
-  const host = requestHeaders.get('host') ?? 'localhost:3000'
-  const origin = `${forwardedProto}://${host}`
-
+  const appUrl = getAppUrl(requestHeaders)
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${origin}/auth/confirm?next=/onboarding`,
+      emailRedirectTo: `${appUrl}/auth/confirm?next=/onboarding`,
     },
   })
 
