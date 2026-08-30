@@ -8,13 +8,9 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
 
   if (!claimsData?.claims?.sub) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, role, status, onboarding_completed')
-    .eq('id', claimsData.claims.sub)
-    .maybeSingle()
+  const { data: profile, error } = await supabase.rpc('get_my_profile').maybeSingle()
 
-  if (!profile) redirect('/login?error=We could not find your Oswok profile.')
+  if (error || !profile) redirect('/login?error=We could not find your Oswok profile.')
   if (profile.status === 'suspended') redirect('/login?error=This account is suspended.')
   if (profile.onboarding_completed) redirect('/dashboard')
 
