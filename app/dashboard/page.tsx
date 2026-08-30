@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
@@ -20,19 +21,26 @@ export default async function DashboardPage() {
             <h1 className="mt-2 text-3xl font-bold">Welcome, {profile.full_name || 'there'}.</h1>
             <p className="mt-1 text-slate-400">{profile.role === 'employer' ? 'Employer workspace' : 'Worker workspace'} · {profile.location || 'Location not set'}</p>
           </div>
-          <form action="/auth/signout" method="post"><button className="rounded-xl border border-white/10 px-4 py-2 text-sm">Sign out</button></form>
+          <div className="flex gap-3">
+            <Link href="/jobs" className="rounded-xl bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-950">Marketplace</Link>
+            <form action="/auth/signout" method="post"><button className="rounded-xl border border-white/10 px-4 py-2 text-sm">Sign out</button></form>
+          </div>
         </div>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-sm text-slate-400">Account</p><p className="mt-2 font-semibold capitalize">{profile.role}</p></div>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-sm text-slate-400">Verification</p><p className="mt-2 font-semibold capitalize">{profile.verification_status}</p></div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-sm text-slate-400">Next</p><p className="mt-2 font-semibold">{profile.role === 'employer' ? 'Post your first job' : 'Add your skills'}</p></div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-sm text-slate-400">Next</p><p className="mt-2 font-semibold">{profile.role === 'employer' ? 'Post your first job' : 'Find your next job'}</p></div>
         </section>
 
         <section className="mt-6 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-6">
-          <p className="text-sm font-semibold text-cyan-200">Phase 3 foundation</p>
-          <h2 className="mt-2 text-xl font-bold">Your identity is now connected to Oswok.</h2>
-          <p className="mt-2 max-w-2xl text-slate-400">Jobs, applications, matching and payments will be introduced in later phases. For now, this dashboard confirms that authentication and role-aware onboarding are working.</p>
+          <p className="text-sm font-semibold text-cyan-200">Phase 4 · Marketplace foundation</p>
+          <h2 className="mt-2 text-xl font-bold">Work should find people, not the other way around.</h2>
+          <p className="mt-2 max-w-2xl text-slate-400">Browse open work as a worker, or publish opportunities as an employer. Applications are now connected to the same authenticated identity foundation.</p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/jobs" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">Browse jobs</Link>
+            {profile.role === 'employer' ? <Link href="/jobs/new" className="rounded-xl border border-white/10 px-4 py-2 text-sm">Post a job</Link> : null}
+          </div>
         </section>
       </div>
     </main>
