@@ -31,16 +31,17 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <Link href="/dashboard" className="text-sm font-semibold text-cyan-300">← Dashboard</Link>
-            <h1 className="mt-3 text-3xl font-bold">Find work</h1>
-            <p className="mt-2 text-slate-400">Open opportunities from employers on Oswok.</p>
+            <h1 className="mt-3 text-3xl font-bold">{profile.role === 'employer' ? 'Marketplace' : 'Find work'}</h1>
+            <p className="mt-2 text-slate-400">{profile.role === 'employer' ? 'Publish opportunities and build your hiring pipeline.' : 'Discover open opportunities from employers on Oswok.'}</p>
           </div>
-          {profile.role === 'employer' ? (
-            <Link href="/jobs/new" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Post a job</Link>
-          ) : null}
+          <div className="flex flex-wrap gap-3">
+            <Link href="/dashboard" className="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold">Dashboard</Link>
+            {profile.role === 'employer' ? <Link href="/jobs/new" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Post a job</Link> : null}
+          </div>
         </header>
 
         {params.error ? <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">{params.error}</div> : null}
-        {error ? <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">Unable to load jobs right now.</div> : null}
+        {error ? <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">Unable to load jobs right now. Please try again.</div> : null}
 
         <section className="mt-8 grid gap-5 md:grid-cols-2">
           {(jobs ?? []).map((job) => (
@@ -58,14 +59,26 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
                 <span>{job.pay_currency} {Number(job.pay_amount).toLocaleString()}</span>
               </div>
               <p className="mt-4 text-xs text-slate-500">Posted by {employerNames.get(job.employer_id) || 'Oswok employer'}</p>
+              <p className="mt-4 text-sm font-semibold text-cyan-300">View opportunity →</p>
             </Link>
           ))}
         </section>
 
         {!jobs?.length && !error ? (
           <div className="mt-8 rounded-2xl border border-dashed border-white/10 p-10 text-center">
-            <h2 className="text-xl font-semibold">No open jobs yet</h2>
-            <p className="mt-2 text-slate-400">The marketplace is ready. We just need employers to start posting.</p>
+            {profile.role === 'employer' ? (
+              <>
+                <h2 className="text-xl font-semibold">Your marketplace is empty</h2>
+                <p className="mx-auto mt-2 max-w-lg text-slate-400">No open jobs exist yet. Create your first opportunity and it will become visible to workers.</p>
+                <Link href="/jobs/new" className="mt-6 inline-block rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Post your first job →</Link>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold">No open jobs yet</h2>
+                <p className="mx-auto mt-2 max-w-lg text-slate-400">There are no published opportunities in the marketplace yet. Check back as employers begin posting work.</p>
+                <Link href="/dashboard" className="mt-6 inline-block rounded-xl border border-white/10 px-5 py-3 font-semibold">Back to dashboard</Link>
+              </>
+            )}
           </div>
         ) : null}
       </div>
