@@ -27,30 +27,23 @@ export async function createJob(formData: FormData) {
   if (description.length < 20) fail('/jobs/new', 'Give the job a useful description of at least 20 characters.')
   if (!Number.isFinite(payAmount) || payAmount <= 0) fail('/jobs/new', 'Enter a valid positive pay amount.')
 
-  const { supabase, userId } = await requireUser()
-  const { data: profile } = await supabase.rpc('get_my_profile').maybeSingle()
-  if (!profile || profile.role !== 'employer') fail('/jobs/new', 'Only employer accounts can post jobs.')
+  const { supabase } = await requireUser()
+  const { data: jobId, error } = await (supabase.rpc as unknown as (
+    functionName: string,
+    args: Record<string, string | number | null>
+  ) => Promise<{ data: string | null; error: { message: string } | null }>)('create_my_job', {
+    new_title: title,
+    new_description: description,
+    new_category: category || null,
+    new_location: location || null,
+    new_pay_amount: payAmount,
+  })
 
-  const { data: job, error } = await supabase
-    .from('jobs')
-    .insert({
-      employer_id: userId,
-      title,
-      description,
-      category: category || null,
-      location: location || null,
-      pay_amount: payAmount,
-      pay_currency: 'SLE',
-      status: 'open',
-    })
-    .select('id')
-    .single()
-
-  if (error || !job) fail('/jobs/new', error?.message ?? 'Unable to create this job.')
+  if (error || !jobId) fail('/jobs/new', error?.message ?? 'Unable to create this job.')
 
   revalidatePath('/jobs')
   revalidatePath('/dashboard')
-  redirect(`/jobs/${job.id}`)
+  redirect(`/jobs/${jobId}`)
 }
 
 export async function applyToJob(formData: FormData) {
@@ -58,21 +51,16 @@ export async function applyToJob(formData: FormData) {
   const coverNote = String(formData.get('coverNote') ?? '').trim()
   if (!jobId) fail('/jobs', 'Job not found.')
 
-  const { supabase, userId } = await requireUser()
-  const { data: profile } = await supabase.rpc('get_my_profile').maybeSingle()
-  if (!profile || profile.role !== 'worker') fail(`/jobs/${jobId}`, 'Only worker accounts can apply for jobs.')
-
-  const { error } = await supabase.from('applications').insert({
-    job_id: jobId,
-    worker_id: userId,
-    cover_note: coverNote || null,
-    status: 'pending',
+  const { supabase } = await requireUser()
+  const { data: applicationId, error } = await (supabase.rpc as unknown as (
+    functionName: string,
+    args: Record<string, string | null>
+  ) => Promise<{ data: string | null; error: { message: string } | null }>)('apply_to_job', {
+    target_job_id: jobId,
+    new_cover_note: coverNote || null,
   })
 
-  if (error) {
-    if (error.code === '23505') fail(`/jobs/${jobId}`, 'You have already applied for this job.')
-    fail(`/jobs/${jobId}`, error.message)
-  }
+  if (error || !applicationId) fail(`/jobs/${jobId}`, error?.message ?? 'Unable to apply for this job.')
 
   revalidatePath(`/jobs/${jobId}`)
   revalidatePath('/jobs')
