@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-type SearchParams = Promise<{ error?: string }>
+type SearchParams = Promise<{ error?: string; q?: string; category?: string; location?: string }>
 
 export default async function JobsPage({ searchParams }: { searchParams: SearchParams }) {
   const supabase = await createClient()
@@ -12,18 +12,28 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
   const { data: profile } = await supabase.rpc('get_my_profile').maybeSingle()
   if (!profile) redirect('/onboarding')
 
-  const { data: jobs, error } = await supabase
+  const params = await searchParams
+  const q = params.q?.trim() || ''
+  const category = params.category?.trim() || ''
+  const location = params.location?.trim() || ''
+
+  let jobsQuery = supabase
     .from('jobs')
     .select('id, employer_id, title, description, category, location, pay_amount, pay_currency, status, created_at')
     .eq('status', 'open')
     .order('created_at', { ascending: false })
+
+  if (q) jobsQuery = jobsQuery.or(`title.ilike.%${q}%,description.ilike.%${q}%,category.ilike.%${q}%`)
+  if (category) jobsQuery = jobsQuery.eq('category', category)
+  if (location) jobsQuery = jobsQuery.ilike('location', `%${location}%`)
+
+  const { data: jobs, error } = await jobsQuery
 
   const employerIds = [...new Set((jobs ?? []).map((job) => job.employer_id))]
   const { data: employers } = employerIds.length
     ? await supabase.from('employer_profiles').select('user_id, organisation_name').in('user_id', employerIds)
     : { data: [] }
   const employerNames = new Map((employers ?? []).map((employer) => [employer.user_id, employer.organisation_name]))
-  const params = await searchParams
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-10 text-white">
@@ -36,9 +46,16 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href="/dashboard" className="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold">Dashboard</Link>
-            {profile.role === 'employer' ? <Link href="/jobs/new" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Post a job</Link> : null}
+            {profile.role === 'employer' ? <Link href="/jobs/new" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Post a job</Link> : <Link href="/applications" className="rounded-xl border border-white/10 px-5 py-3 font-semibold">My applications</Link>}
           </div>
         </header>
+
+        <form method="get" className="mt-7 grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-5 md:grid-cols-[2fr_1fr_1fr_auto]">
+          <input name="q" defaultValue={q} placeholder="Search jobs, skills or keywords" className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3" />
+          <input name="category" defaultValue={category} placeholder="Category" className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3" />
+          <input name="location" defaultValue={location} placeholder="Location" className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3" />
+          <button type="submit" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Search</button>
+        </form>
 
         {params.error ? <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">{params.error}</div> : null}
         {error ? <div className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">Unable to load jobs right now. Please try again.</div> : null}
@@ -54,10 +71,7 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
                 <span className="shrink-0 rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">Open</span>
               </div>
               <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-400">{job.description}</p>
-              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-300">
-                <span>{job.location || 'Location flexible'}</span>
-                <span>{job.pay_currency} {Number(job.pay_amount).toLocaleString()}</span>
-              </div>
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-300"><span>{job.location || 'Location flexible'}</span><span>{job.pay_currency} {Number(job.pay_amount).toLocaleString()}</span></div>
               <p className="mt-4 text-xs text-slate-500">Posted by {employerNames.get(job.employer_id) || 'Oswok employer'}</p>
               <p className="mt-4 text-sm font-semibold text-cyan-300">View opportunity →</p>
             </Link>
@@ -66,19 +80,9 @@ export default async function JobsPage({ searchParams }: { searchParams: SearchP
 
         {!jobs?.length && !error ? (
           <div className="mt-8 rounded-2xl border border-dashed border-white/10 p-10 text-center">
-            {profile.role === 'employer' ? (
-              <>
-                <h2 className="text-xl font-semibold">Your marketplace is empty</h2>
-                <p className="mx-auto mt-2 max-w-lg text-slate-400">No open jobs exist yet. Create your first opportunity and it will become visible to workers.</p>
-                <Link href="/jobs/new" className="mt-6 inline-block rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Post your first job →</Link>
-              </>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold">No open jobs yet</h2>
-                <p className="mx-auto mt-2 max-w-lg text-slate-400">There are no published opportunities in the marketplace yet. Check back as employers begin posting work.</p>
-                <Link href="/dashboard" className="mt-6 inline-block rounded-xl border border-white/10 px-5 py-3 font-semibold">Back to dashboard</Link>
-              </>
-            )}
+            <h2 className="text-xl font-semibold">No matching open jobs</h2>
+            <p className="mx-auto mt-2 max-w-lg text-slate-400">Try a broader search or check again as employers publish new opportunities.</p>
+            <Link href="/jobs" className="mt-6 inline-flex rounded-xl border border-white/10 px-5 py-3 font-semibold">Clear search</Link>
           </div>
         ) : null}
       </div>
