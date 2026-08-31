@@ -6,14 +6,13 @@ import { createClient } from '@/lib/supabase/server'
 
 type Role = 'worker' | 'employer'
 
-function errorRedirect(message: string): never {
-  redirect(`/login?error=${encodeURIComponent(message)}`)
+function errorRedirect(message: string, role?: Role): never {
+  redirect(`/login?error=${encodeURIComponent(message)}${role ? `&role=${role}` : ''}`)
 }
 
 function getAppUrl(requestHeaders: Headers) {
   const configuredUrl = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, '')
   if (configuredUrl) return configuredUrl
-
   const forwardedProto = requestHeaders.get('x-forwarded-proto') ?? 'http'
   const host = requestHeaders.get('host') ?? 'localhost:3000'
   return `${forwardedProto}://${host}`
@@ -22,15 +21,20 @@ function getAppUrl(requestHeaders: Headers) {
 export async function login(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
   const password = String(formData.get('password') ?? '')
+  const requestedRole = String(formData.get('role') ?? '') as Role
 
-  if (!email || !email.includes('@') || password.length < 8) {
-    errorRedirect('Enter a valid email and a password of at least 8 characters.')
-  }
+  if (!['worker', 'employer'].includes(requestedRole)) errorRedirect('Choose whether you want to find work or hire people.')
+  if (!email || !email.includes('@') || password.length < 8) errorRedirect('Enter a valid email and a password of at least 8 characters.', requestedRole)
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) errorRedirect('Unable to sign in. Check your email and password.', requestedRole)
 
-  if (error) errorRedirect('Unable to sign in. Check your email and password.')
+  const { data: profile } = await supabase.rpc('get_my_profile').maybeSingle()
+  if (!profile) errorRedirect('Your Oswok profile could not be loaded. Please contact support.', requestedRole)
+  if (profile.status === 'suspended') errorRedirect('This account is suspended.', requestedRole)
+  if (profile.onboarding_completed && profile.role !== requestedRole) errorRedirect(`This account is registered as a ${profile.role}. Choose ${profile.role} to continue.`, requestedRole)
+  if (!profile.onboarding_completed) redirect(`/onboarding?role=${requestedRole}`)
   redirect('/dashboard')
 }
 
@@ -41,9 +45,9 @@ export async function signup(formData: FormData) {
   const role = String(formData.get('role') ?? '') as Role
 
   if (!['worker', 'employer'].includes(role)) errorRedirect('Choose whether you want to find work or hire people.')
-  if (fullName.length < 2) errorRedirect('Enter your full name.')
-  if (!email || !email.includes('@')) errorRedirect('Enter a valid email address.')
-  if (password.length < 8) errorRedirect('Password must be at least 8 characters.')
+  if (fullName.length < 2) errorRedirect('Enter your full name.', role)
+  if (!email || !email.includes('@')) errorRedirect('Enter a valid email address.', role)
+  if (password.length < 8) errorRedirect('Password must be at least 8 characters.', role)
 
   const requestHeaders = await headers()
   const appUrl = getAppUrl(requestHeaders)
@@ -57,8 +61,7 @@ export async function signup(formData: FormData) {
     },
   })
 
-  if (error) errorRedirect(error.message)
-
+  if (error) errorRedirect(error.message, role)
   if (data.session) redirect(`/onboarding?role=${role}`)
-  redirect('/check-email')
+  redirect(`/check-email?role=${role}`)
 }
