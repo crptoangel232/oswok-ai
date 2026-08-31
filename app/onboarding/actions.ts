@@ -5,50 +5,40 @@ import { createClient } from '@/lib/supabase/server'
 
 type Role = 'worker' | 'employer'
 
+function fail(message: string): never {
+  redirect(`/onboarding?error=${encodeURIComponent(message)}`)
+}
+
 export async function completeOnboarding(formData: FormData) {
   const role = String(formData.get('role') ?? '') as Role
   const fullName = String(formData.get('fullName') ?? '').trim()
   const location = String(formData.get('location') ?? '').trim()
   const phone = String(formData.get('phone') ?? '').trim()
+  const organisationName = String(formData.get('organisationName') ?? '').trim()
+  const organisationType = String(formData.get('organisationType') ?? '').trim()
 
-  if (!['worker', 'employer'].includes(role)) redirect('/onboarding?error=Choose a valid account type.')
-  if (fullName.length < 2) redirect('/onboarding?error=Enter your full name.')
-  if (location.length < 2) redirect('/onboarding?error=Enter your location.')
+  if (!['worker', 'employer'].includes(role)) fail('Choose a valid account type.')
+  if (fullName.length < 2) fail('Enter your full name.')
+  if (location.length < 2) fail('Enter your location.')
+  if (role === 'employer' && organisationName.length < 2) fail('Enter your organisation or business name.')
 
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
+  if (!claimsData?.claims?.sub) redirect('/login?error=Your session has expired. Please sign in again.')
 
-  if (!userId) redirect('/login?error=Your session has expired. Please sign in again.')
-
-  const { error: roleError } = await (supabase.rpc as unknown as (
+  const { error } = await (supabase.rpc as unknown as (
     functionName: string,
-    args: { new_role: Role }
-  ) => Promise<{ error: { message: string } | null }>)('set_my_role', { new_role: role })
+    args: Record<string, string | null>
+  ) => Promise<{ error: { message: string } | null }>)('complete_my_onboarding', {
+    new_role: role,
+    new_full_name: fullName,
+    new_location: location,
+    new_phone: phone || null,
+    new_organisation_name: role === 'employer' ? organisationName : null,
+    new_organisation_type: role === 'employer' ? organisationType || null : null,
+  })
 
-  if (roleError) redirect(`/onboarding?error=${encodeURIComponent(roleError.message)}`)
-
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ full_name: fullName, location, phone, updated_at: new Date().toISOString() })
-    .eq('id', userId)
-
-  if (profileError) redirect(`/onboarding?error=${encodeURIComponent(profileError.message)}`)
-
-  if (role === 'worker') {
-    const { error } = await supabase.from('worker_profiles').upsert({ user_id: userId })
-    if (error) redirect(`/onboarding?error=${encodeURIComponent(error.message)}`)
-  } else {
-    const organisationName = String(formData.get('organisationName') ?? '').trim()
-    if (organisationName.length < 2) redirect('/onboarding?error=Enter your organisation or business name.')
-
-    const { error } = await supabase.from('employer_profiles').upsert({
-      user_id: userId,
-      organisation_name: organisationName,
-      organisation_type: String(formData.get('organisationType') ?? '').trim() || null,
-    })
-    if (error) redirect(`/onboarding?error=${encodeURIComponent(error.message)}`)
-  }
+  if (error) fail(error.message)
 
   redirect('/dashboard')
 }
