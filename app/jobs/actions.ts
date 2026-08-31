@@ -20,12 +20,23 @@ export async function createJob(formData: FormData) {
   const category = String(formData.get('category') ?? '').trim()
   const location = String(formData.get('location') ?? '').trim()
   const payAmount = Number(formData.get('payAmount') ?? 0)
+  const skillIds = [...new Set(formData.getAll('skillIds').map(String).filter(Boolean))]
   if (title.length < 3) fail('/jobs/new', 'Enter a job title.')
   if (description.length < 20) fail('/jobs/new', 'Give the job a useful description of at least 20 characters.')
   if (!Number.isFinite(payAmount) || payAmount <= 0) fail('/jobs/new', 'Enter a valid positive pay amount.')
   const { supabase } = await requireUser()
   const { data: jobId, error } = await (supabase.rpc as unknown as (functionName: string, args: Record<string, string | number | null>) => Promise<{ data: string | null; error: { message: string } | null }>)('create_my_job', { new_title: title, new_description: description, new_category: category || null, new_location: location || null, new_pay_amount: payAmount })
   if (error || !jobId) fail('/jobs/new', error?.message ?? 'Unable to create this job.')
+
+  if (skillIds.length) {
+    const { data: validSkills } = await supabase.from('skills').select('id').in('id', skillIds)
+    const validSkillIds = (validSkills ?? []).map((skill) => skill.id)
+    if (validSkillIds.length) {
+      const { error: skillsError } = await supabase.from('job_skills').insert(validSkillIds.map((skillId) => ({ job_id: jobId, skill_id: skillId, required: true })))
+      if (skillsError) fail('/jobs/new', skillsError.message)
+    }
+  }
+
   revalidatePath('/jobs'); revalidatePath('/dashboard'); redirect(`/jobs/${jobId}`)
 }
 
@@ -36,7 +47,7 @@ export async function applyToJob(formData: FormData) {
   const { supabase } = await requireUser()
   const { data: applicationId, error } = await (supabase.rpc as unknown as (functionName: string, args: Record<string, string | null>) => Promise<{ data: string | null; error: { message: string } | null }>)('apply_to_job', { target_job_id: jobId, new_cover_note: coverNote || null })
   if (error || !applicationId) fail(`/jobs/${jobId}`, error?.message ?? 'Unable to apply for this job.')
-  revalidatePath(`/jobs/${jobId}`); revalidatePath('/jobs'); revalidatePath('/dashboard'); redirect(`/jobs/${jobId}?applied=1`)
+  revalidatePath(`/jobs/${jobId}`); revalidatePath('/jobs'); revalidatePath('/applications'); revalidatePath('/dashboard'); redirect(`/jobs/${jobId}?applied=1`)
 }
 
 export async function updateApplicationStatus(formData: FormData) {
@@ -44,10 +55,10 @@ export async function updateApplicationStatus(formData: FormData) {
   const jobId = String(formData.get('jobId') ?? '')
   const status = String(formData.get('status') ?? '')
   if (!applicationId || !jobId) fail('/jobs', 'Application not found.')
-  if (!['pending', 'accepted', 'rejected'].includes(status)) fail(`/jobs/${jobId}/manage`, 'Invalid application status.')
+  if (!['pending', 'shortlisted', 'accepted', 'rejected', 'withdrawn'].includes(status)) fail(`/jobs/${jobId}/manage`, 'Invalid application status.')
   const { supabase } = await requireUser()
   const { error } = await (supabase.rpc as unknown as (functionName: string, args: Record<string, string>) => Promise<{ data: boolean | null; error: { message: string } | null }>)('update_my_job_application', { target_application_id: applicationId, new_status: status })
   if (error) fail(`/jobs/${jobId}/manage`, error.message)
-  revalidatePath(`/jobs/${jobId}`); revalidatePath(`/jobs/${jobId}/manage`); revalidatePath('/dashboard')
+  revalidatePath(`/jobs/${jobId}`); revalidatePath(`/jobs/${jobId}/manage`); revalidatePath('/applications'); revalidatePath('/dashboard')
   redirect(`/jobs/${jobId}/manage?updated=1`)
 }

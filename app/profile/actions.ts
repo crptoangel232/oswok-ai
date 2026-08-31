@@ -15,6 +15,7 @@ export async function updateWorkerProfile(formData: FormData) {
   const availability = String(formData.get('availability') ?? '').trim()
   const hourlyRate = Number(formData.get('hourlyRate') ?? 0)
   const experienceYears = Number(formData.get('experienceYears') ?? 0)
+  const skillIds = [...new Set(formData.getAll('skillIds').map(String).filter(Boolean))]
 
   if (fullName.length < 2) fail('Enter your full name.')
   if (!Number.isFinite(hourlyRate) || hourlyRate < 0) fail('Enter a valid hourly rate.')
@@ -40,7 +41,20 @@ export async function updateWorkerProfile(formData: FormData) {
     .upsert({ user_id: userId, availability: availability || null, hourly_rate: hourlyRate, experience_years: experienceYears, updated_at: new Date().toISOString() })
   if (workerError) fail(workerError.message)
 
+  const { error: deleteSkillsError } = await supabase.from('worker_skills').delete().eq('worker_id', userId)
+  if (deleteSkillsError) fail(deleteSkillsError.message)
+
+  if (skillIds.length) {
+    const { data: validSkills } = await supabase.from('skills').select('id').in('id', skillIds)
+    const validSkillIds = (validSkills ?? []).map((skill) => skill.id)
+    if (validSkillIds.length) {
+      const { error: skillError } = await supabase.from('worker_skills').insert(validSkillIds.map((skillId) => ({ worker_id: userId, skill_id: skillId })))
+      if (skillError) fail(skillError.message)
+    }
+  }
+
   revalidatePath('/profile')
   revalidatePath('/dashboard')
+  revalidatePath('/jobs')
   redirect('/profile?saved=1')
 }
