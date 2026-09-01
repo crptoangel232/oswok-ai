@@ -5,6 +5,16 @@ import { updateWorkerProfile } from './actions'
 import { updateEmployerProfile } from './employer-actions'
 
 type SearchParams = Promise<{ saved?: string; error?: string }>
+type Profile = {
+  id: string
+  full_name: string | null
+  role: 'worker' | 'employer' | 'admin'
+  status: 'active' | 'suspended' | 'pending'
+  location: string | null
+  verification_status: 'unverified' | 'pending' | 'verified' | 'rejected'
+  onboarding_completed: boolean
+  bio: string | null
+}
 
 export default async function ProfilePage({ searchParams }: { searchParams: SearchParams }) {
   const supabase = await createClient()
@@ -12,7 +22,8 @@ export default async function ProfilePage({ searchParams }: { searchParams: Sear
   const userId = claimsData?.claims?.sub
   if (!userId) redirect('/login')
 
-  const { data: profile } = await supabase.rpc('get_my_profile').maybeSingle()
+  const { data: profileData } = await supabase.rpc('get_my_profile').maybeSingle()
+  const profile = profileData as Profile | null
   if (!profile) redirect('/onboarding')
   if (profile.role === 'admin') redirect('/dashboard')
 
