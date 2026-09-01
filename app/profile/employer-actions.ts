@@ -27,18 +27,17 @@ export async function updateEmployerProfile(formData: FormData) {
 
   const { data: profile } = await supabase.rpc('get_my_profile').maybeSingle()
   if (!profile) redirect('/onboarding')
-  if (profile.role !== 'employer') fail('Only hirer accounts can edit an employer profile.')
+  if (profile.role !== 'employer') fail('Only hirer accounts can edit a hirer profile.')
 
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ full_name: fullName, location, bio: bio || null, updated_at: new Date().toISOString() })
-    .eq('id', userId)
-  if (profileError) fail(profileError.message)
-
-  const { error: employerError } = await supabase
-    .from('employer_profiles')
-    .upsert({ user_id: userId, organisation_name: organisationName, organisation_type: organisationType || null, website: website || null, updated_at: new Date().toISOString() })
-  if (employerError) fail(employerError.message)
+  const { error } = await supabase.rpc('update_my_employer_profile', {
+    new_full_name: fullName,
+    new_location: location,
+    new_bio: bio,
+    new_organisation_name: organisationName,
+    new_organisation_type: organisationType,
+    new_website: website,
+  })
+  if (error) fail(error.message)
 
   revalidatePath('/profile')
   revalidatePath('/dashboard')
