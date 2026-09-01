@@ -51,3 +51,15 @@ export async function updateApplicationStatus(formData: FormData) {
   revalidatePath(`/jobs/${jobId}`); revalidatePath(`/jobs/${jobId}/manage`); revalidatePath('/dashboard')
   redirect(`/jobs/${jobId}/manage?updated=1`)
 }
+
+export async function transitionJobStatus(formData: FormData) {
+  const jobId = String(formData.get('jobId') ?? '')
+  const status = String(formData.get('status') ?? '')
+  if (!jobId) fail('/jobs', 'Job not found.')
+  if (!status) fail(`/jobs/${jobId}/manage`, 'Choose a job status.')
+  const { supabase } = await requireUser()
+  const { error } = await (supabase.rpc as unknown as (functionName: string, args: Record<string, string>) => Promise<{ data: string | null; error: { message: string } | null }>)('transition_my_job_status', { target_job_id: jobId, new_status: status })
+  if (error) fail(`/jobs/${jobId}/manage`, error.message)
+  revalidatePath(`/jobs/${jobId}`); revalidatePath(`/jobs/${jobId}/manage`); revalidatePath('/jobs'); revalidatePath('/dashboard'); revalidatePath('/matches')
+  redirect(`/jobs/${jobId}/manage?updated=1`)
+}
