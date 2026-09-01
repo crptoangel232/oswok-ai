@@ -1,7 +1,19 @@
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { updateApplicationStatus } from '../../actions'
+import { transitionJobStatus, updateApplicationStatus } from '../../actions'
+
+const nextStatuses: Record<string, string[]> = {
+  draft: ['open', 'cancelled'],
+  open: ['paused', 'matched', 'closed', 'cancelled', 'expired', 'suspended'],
+  paused: ['open', 'cancelled', 'expired', 'suspended'],
+  matched: ['accepted', 'open', 'cancelled', 'disputed', 'suspended'],
+  accepted: ['in_progress', 'cancelled', 'disputed', 'suspended'],
+  in_progress: ['completed', 'disputed', 'suspended'],
+  completed: ['payment_confirmed', 'disputed'],
+  payment_confirmed: ['reviewed', 'disputed'],
+  filled: ['closed'],
+}
 
 export default async function ManageApplicantsPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; updated?: string }> }) {
   const { id } = await params
@@ -16,17 +28,24 @@ export default async function ManageApplicantsPage({ params, searchParams }: { p
   if (job.employer_id !== userId) redirect(`/jobs/${id}`)
 
   const { data: applicants, error } = await (supabase.rpc as unknown as (name: string, args: Record<string, string>) => Promise<{ data: Array<{ application_id:string; worker_id:string; worker_name:string|null; worker_phone:string|null; worker_location:string|null; worker_bio:string|null; verification_status:string; availability:string|null; hourly_rate:number|null; experience_years:number|null; status:string; cover_note:string|null; applied_at:string }> | null; error:{message:string}|null }>)('get_my_job_applicants', { target_job_id: id })
+  const currentStatus = String(job.status)
+  const availableTransitions = nextStatuses[currentStatus] ?? []
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-10 text-white">
       <div className="mx-auto max-w-4xl">
         <Link href={`/jobs/${id}`} className="text-sm font-semibold text-cyan-300">← Back to job</Link>
         <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
-          <div><p className="text-sm font-semibold text-cyan-300">HIRER WORKSPACE</p><h1 className="mt-2 text-3xl font-bold">Applicants for {job.title}</h1><p className="mt-2 text-slate-400">Review applicants, read their notes, and decide who moves forward.</p></div>
-          <span className="rounded-full bg-white/5 px-3 py-1 text-sm capitalize">Job: {job.status}</span>
+          <div><p className="text-sm font-semibold text-cyan-300">HIRER WORKSPACE</p><h1 className="mt-2 text-3xl font-bold">Applicants for {job.title}</h1><p className="mt-2 text-slate-400">Review applicants and move the opportunity through its controlled lifecycle.</p></div>
+          <span className="rounded-full bg-white/5 px-3 py-1 text-sm capitalize">Job: {currentStatus.replaceAll('_', ' ')}</span>
         </div>
         {query.error || error ? <div className="mt-6 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">{query.error ?? error?.message}</div> : null}
-        {query.updated === '1' ? <div className="mt-6 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-4 text-sm text-emerald-200">Application status updated.</div> : null}
+        {query.updated === '1' ? <div className="mt-6 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-4 text-sm text-emerald-200">Change saved successfully.</div> : null}
+
+        <section className="mt-7 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wide text-cyan-300">Job lifecycle</p><h2 className="mt-1 text-xl font-bold">{currentStatus.replaceAll('_', ' ')}</h2><p className="mt-2 text-sm text-slate-400">Each transition is validated server-side. The interface only exposes valid next states.</p></div><span className="text-sm text-slate-400">{availableTransitions.length} next step{availableTransitions.length === 1 ? '' : 's'}</span></div>
+          {availableTransitions.length ? <div className="mt-5 flex flex-wrap gap-3">{availableTransitions.map((status) => <form key={status} action={transitionJobStatus}><input type="hidden" name="jobId" value={id}/><input type="hidden" name="status" value={status}/><button className="rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2 text-sm font-semibold capitalize hover:border-cyan-300/40">Move to {status.replaceAll('_', ' ')}</button></form>)}</div> : <p className="mt-4 text-sm text-slate-500">No further lifecycle transition is available from this state.</p>}
+        </section>
 
         <div className="mt-7 space-y-5">
           {applicants?.length ? applicants.map((applicant) => (
