@@ -29,6 +29,7 @@ export default async function DashboardPage() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/profile" className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold">{isEmployer ? 'Edit hirer profile' : 'Edit worker profile'}</Link>
+            <Link href="/matches" className="rounded-xl border border-cyan-300/20 px-4 py-2 text-sm font-semibold text-cyan-200">{isEmployer ? 'Find recommended workers' : 'Recommended jobs'}</Link>
             <form action="/auth/signout" method="post"><button className="rounded-xl border border-white/10 px-4 py-2 text-sm">Sign out</button></form>
           </div>
         </header>
@@ -40,6 +41,7 @@ export default async function DashboardPage() {
           <div className="mt-6 flex flex-wrap gap-3">
             {isEmployer ? <Link href="/jobs/new" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Post a job</Link> : <Link href="/jobs" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Find jobs</Link>}
             {isEmployer ? <Link href="/jobs" className="rounded-xl border border-white/10 px-5 py-3 font-semibold">My jobs</Link> : <Link href="/applications" className="rounded-xl border border-white/10 px-5 py-3 font-semibold">My applications</Link>}
+            <Link href="/matches" className="rounded-xl border border-white/10 px-5 py-3 font-semibold">{isEmployer ? 'Recommended workers' : 'Recommended jobs'}</Link>
           </div>
         </section>
 
