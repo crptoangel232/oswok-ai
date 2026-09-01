@@ -26,8 +26,9 @@ export type Database = {
       update_my_employer_profile: { Args: { new_full_name: string; new_location: string; new_bio: string; new_organisation_name: string; new_organisation_type: string; new_website: string }; Returns: undefined };
       get_my_recommended_jobs: { Args: { limit_count?: number }; Returns: { job_id: string; title: string; description: string; category: string | null; location: string | null; pay_amount: number; pay_currency: string; employer_name: string; employer_verification: string; score: number; reason: string }[] };
       get_my_candidate_recommendations: { Args: { target_job_id: string; limit_count?: number }; Returns: { worker_id: string; worker_name: string | null; location: string | null; bio: string | null; verification_status: string; availability: string | null; hourly_rate: number | null; experience_years: number | null; score: number; reason: string }[] };
+      transition_my_job_status: { Args: { target_job_id: string; new_status: string }; Returns: Database['public']['Enums']['job_status'] };
     };
-    Enums: { user_role: 'worker' | 'employer' | 'admin'; account_status: 'active' | 'suspended' | 'pending'; job_status: 'draft' | 'open' | 'paused' | 'filled' | 'closed' | 'cancelled'; application_status: 'pending' | 'shortlisted' | 'accepted' | 'rejected' | 'withdrawn'; verification_status: 'unverified' | 'pending' | 'verified' | 'rejected' };
+    Enums: { user_role: 'worker' | 'employer' | 'admin'; account_status: 'active' | 'suspended' | 'pending'; job_status: 'draft' | 'open' | 'paused' | 'filled' | 'closed' | 'cancelled' | 'matched' | 'accepted' | 'in_progress' | 'completed' | 'payment_confirmed' | 'reviewed' | 'expired' | 'disputed' | 'suspended'; application_status: 'pending' | 'shortlisted' | 'accepted' | 'rejected' | 'withdrawn'; verification_status: 'unverified' | 'pending' | 'verified' | 'rejected' };
     CompositeTypes: Record<string, never>;
   };
 };
