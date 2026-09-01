@@ -29,16 +29,15 @@ export async function updateWorkerProfile(formData: FormData) {
   if (!profile) redirect('/onboarding')
   if (profile.role !== 'worker') fail('Only worker accounts can edit a worker profile.')
 
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ full_name: fullName, location: location || null, bio: bio || null, updated_at: new Date().toISOString() })
-    .eq('id', userId)
-  if (profileError) fail(profileError.message)
-
-  const { error: workerError } = await supabase
-    .from('worker_profiles')
-    .upsert({ user_id: userId, availability: availability || null, hourly_rate: hourlyRate, experience_years: experienceYears, updated_at: new Date().toISOString() })
-  if (workerError) fail(workerError.message)
+  const { error } = await supabase.rpc('update_my_worker_profile', {
+    new_full_name: fullName,
+    new_location: location,
+    new_bio: bio,
+    new_availability: availability,
+    new_hourly_rate: hourlyRate,
+    new_experience_years: experienceYears,
+  })
+  if (error) fail(error.message)
 
   revalidatePath('/profile')
   revalidatePath('/dashboard')
