@@ -24,11 +24,11 @@ export default async function DashboardPage() {
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <p className="text-sm font-semibold text-cyan-300">OSWOK AI</p>
-            <h1 className="mt-2 text-3xl font-bold">{isEmployer ? 'Hirer dashboard' : 'Worker dashboard'}</h1>
+            <h1 className="mt-2 text-3xl font-bold">{isEmployer ? 'Employer dashboard' : 'Worker dashboard'}</h1>
             <p className="mt-1 text-slate-400">Welcome, {profile.full_name || 'there'} · {profile.location || 'Location not set'}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/profile" className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold">{isEmployer ? 'Edit hirer profile' : 'Edit worker profile'}</Link>
+            <Link href="/profile" className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold">{isEmployer ? 'Edit employer profile' : 'Edit worker profile'}</Link>
             <Link href="/matches" className="rounded-xl border border-cyan-300/20 px-4 py-2 text-sm font-semibold text-cyan-200">{isEmployer ? 'Find recommended workers' : 'Recommended jobs'}</Link>
             <form action="/auth/signout" method="post"><button className="rounded-xl border border-white/10 px-4 py-2 text-sm">Sign out</button></form>
           </div>
