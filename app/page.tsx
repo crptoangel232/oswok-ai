@@ -27,7 +27,7 @@ export default function HomePage() {
         </div>
 
         <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-          <span>Worker marketplace</span><span>Employer marketplace</span><span>Admin centre</span>
+          <span>Find jobs</span><span>Hire workers</span><span>Admin centre</span>
         </div>
       </section>
     </main>
