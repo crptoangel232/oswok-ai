@@ -43,7 +43,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <div className="text-right"><Link href="/forgot-password" className="text-sm font-medium text-cyan-300 hover:text-cyan-200">Forgot password?</Link></div>
           <div className="grid gap-3 pt-2 sm:grid-cols-2"><button formAction={login} className="rounded-xl bg-white px-4 py-3 font-semibold text-slate-950">Sign in</button><button formAction={signup} className="rounded-xl bg-cyan-300 px-4 py-3 font-semibold text-slate-950">Create account</button></div>
         </form>
-        <p className="mt-5 text-xs leading-5 text-slate-500">{isEmployer ? 'Hirers publish jobs. Workers see published jobs in the marketplace.' : 'Workers see published jobs and can apply from the job page.'}</p>
+        <p className="mt-5 text-xs leading-5 text-slate-500">{isEmployer ? 'Hirers publish jobs. Workers see published jobs and can apply.' : 'Workers see published jobs and can apply from the job page.'}</p>
       </div>
     </main>
   )
