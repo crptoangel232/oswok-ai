@@ -1,6 +1,7 @@
 -- Oswok Phase 9: employment lifecycle.
 -- Participants can complete an active employment; only the hirer can cancel it.
 
+ drop policy if exists "employment participants can update own employment" on public.employments;
 create policy "employment participants can update own employment"
 on public.employments
 for update
