@@ -9,7 +9,7 @@ export default async function CheckEmailPage({ searchParams }: { searchParams: P
       <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
         <p className="text-sm font-semibold text-cyan-300">OSWOK AI</p>
         <h1 className="mt-4 text-2xl font-bold">Check your email</h1>
-        <p className="mt-3 text-slate-400">We sent a confirmation link. Confirm your email, then return to Oswok to finish your {role === 'employer' ? 'hirer' : 'worker'} onboarding.</p>
+        <p className="mt-3 text-slate-400">We sent a confirmation link. Confirm your email, then return to Oswok to finish your {role === 'employer' ? 'employer' : 'worker'} onboarding.</p>
         <Link href={`/login?role=${role}`} className="mt-7 inline-block rounded-xl bg-white px-5 py-3 font-semibold text-slate-950">Back to sign in</Link>
       </div>
     </main>
