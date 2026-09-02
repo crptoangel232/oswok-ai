@@ -43,7 +43,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Sear
         <div className="mt-4 border-b border-white/10 pb-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-cyan-300">Account profile</p>
           <h1 className="mt-2 text-3xl font-bold">{isEmployer ? 'Hirer profile' : 'Worker profile'}</h1>
-          <p className="mt-2 text-slate-400">Keep your profile accurate so the other side of the marketplace knows who they are dealing with.</p>
+          <p className="mt-2 text-slate-400">Keep your profile accurate so workers and hirers can make informed employment decisions.</p>
         </div>
 
         {params.saved ? <div className="mt-6 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-4 text-sm text-emerald-200">Profile updated successfully.</div> : null}
