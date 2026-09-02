@@ -36,7 +36,7 @@ export default async function ManageApplicantsPage({ params, searchParams }: { p
       <div className="mx-auto max-w-4xl">
         <Link href={`/jobs/${id}`} className="text-sm font-semibold text-cyan-300">← Back to job</Link>
         <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
-          <div><p className="text-sm font-semibold text-cyan-300">HIRER WORKSPACE</p><h1 className="mt-2 text-3xl font-bold">Applicants for {job.title}</h1><p className="mt-2 text-slate-400">Review applicants and move the opportunity through its controlled lifecycle.</p></div>
+          <div><p className="text-sm font-semibold text-cyan-300">HIRER</p><h1 className="mt-2 text-3xl font-bold">Applicants for {job.title}</h1><p className="mt-2 text-slate-400">Review applicants and move the job through its controlled lifecycle.</p></div>
           <span className="rounded-full bg-white/5 px-3 py-1 text-sm capitalize">Job: {currentStatus.replaceAll('_', ' ')}</span>
         </div>
         {query.error || error ? <div className="mt-6 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">{query.error ?? error?.message}</div> : null}
@@ -44,7 +44,7 @@ export default async function ManageApplicantsPage({ params, searchParams }: { p
 
         <section className="mt-7 rounded-2xl border border-cyan-300/20 bg-cyan-300/5 p-6">
           <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wide text-cyan-300">Job lifecycle</p><h2 className="mt-1 text-xl font-bold">{currentStatus.replaceAll('_', ' ')}</h2><p className="mt-2 text-sm text-slate-400">Each transition is validated server-side. The interface only exposes valid next states.</p></div><span className="text-sm text-slate-400">{availableTransitions.length} next step{availableTransitions.length === 1 ? '' : 's'}</span></div>
-          {availableTransitions.length ? <div className="mt-5 flex flex-wrap gap-3">{availableTransitions.map((status) => <form key={status} action={transitionJobStatus}><input type="hidden" name="jobId" value={id}/><input type="hidden" name="status" value={status}/><button className="rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2 text-sm font-semibold capitalize hover:border-cyan-300/40">Move to {status.replaceAll('_', ' ')}</button></form>)}</div> : <p className="mt-4 text-sm text-slate-500">No further lifecycle transition is available from this state.</p>}
+          {availableTransitions.length ? <div className="mt-5 flex flex-wrap gap-3">{availableTransitions.map((status) => <form key={status} action={transitionJobStatus}><input type="hidden" name="jobId" value={id}/><input type="hidden" name="status" value={status}/><button className="rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2 text-sm font-semibold capitalize hover:border-cyan-300/40">Move to {status.replaceAll('_', ' ')}</button></form>)}</div> : <p className="mt-4 text-sm text-slate-500">No further job transition is available from this state.</p>}
         </section>
 
         <div className="mt-7 space-y-5">
