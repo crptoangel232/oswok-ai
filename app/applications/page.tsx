@@ -10,22 +10,6 @@ const statusStyles: Record<string, string> = {
   withdrawn: 'bg-slate-400/10 text-slate-300',
 }
 
-type ApplicationRow = {
-  application_id: string
-  job_id: string
-  job_title: string
-  job_category: string | null
-  job_location: string | null
-  pay_amount: number
-  pay_currency: string
-  job_status: string
-  employer_name: string
-  application_status: string
-  cover_note: string | null
-  applied_at: string
-  updated_at: string
-}
-
 export default async function ApplicationsPage() {
   const supabase = await createClient()
   const { data: claimsData } = await supabase.auth.getClaims()
@@ -35,7 +19,7 @@ export default async function ApplicationsPage() {
   if (!profile) redirect('/onboarding')
   if (profile.role !== 'worker') redirect('/dashboard')
 
-  const { data: applications, error } = await (supabase.rpc as unknown as (name: string, args?: Record<string, never>) => Promise<{ data: ApplicationRow[] | null; error: { message: string } | null }> )('get_my_applications')
+  const { data: applications, error } = await supabase.rpc('get_my_applications')
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-10 text-white">
@@ -47,9 +31,7 @@ export default async function ApplicationsPage() {
             <Link href="/jobs" className="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Find more jobs</Link>
           </div>
         </header>
-
         {error ? <div className="mt-6 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-200">Unable to load your applications right now.</div> : null}
-
         <section className="mt-7 space-y-4">
           {(applications ?? []).map((application) => (
             <article key={application.application_id} className="rounded-2xl border border-white/10 bg-white/5 p-6">
@@ -66,7 +48,6 @@ export default async function ApplicationsPage() {
               <Link href={`/jobs/${application.job_id}`} className="mt-5 inline-flex text-sm font-semibold text-cyan-300">View job →</Link>
             </article>
           ))}
-
           {!applications?.length && !error ? <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center"><h2 className="text-xl font-semibold">No applications yet</h2><p className="mx-auto mt-2 max-w-lg text-slate-400">Find an open opportunity, review the details, and submit your first application.</p><Link href="/jobs" className="mt-6 inline-flex rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950">Browse open jobs</Link></div> : null}
         </section>
       </div>
