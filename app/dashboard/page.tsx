@@ -14,9 +14,16 @@ export default async function DashboardPage() {
   if (!profile.onboarding_completed) redirect('/onboarding')
 
   const isEmployer = profile.role === 'employer'
+
+  const jobsQuery = supabase
+    .from('jobs')
+    .select('id, title, status, location, pay_amount, pay_currency, created_at')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
   const { data: jobs } = isEmployer
-    ? await supabase.from('jobs').select('id, title, status, location, pay_amount, pay_currency, created_at').eq('employer_id', userId).order('created_at', { ascending: false }).limit(5)
-    : await supabase.from('jobs').select('id, title, status, location, pay_amount, pay_currency, created_at').eq('status', 'open').order('created_at', { ascending: false }).limit(5)
+    ? await jobsQuery.eq('employer_id', userId)
+    : await jobsQuery.eq('status', 'open')
 
   const { data: employments } = await supabase.rpc('get_my_employments')
 
