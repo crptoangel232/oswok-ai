@@ -7,15 +7,18 @@ export default async function DashboardPage() {
   const { data: claimsData } = await supabase.auth.getClaims()
   const userId = claimsData?.claims?.sub
   if (!userId) redirect('/login')
+
   const { data: profile, error } = await supabase.rpc('get_my_profile').maybeSingle()
   if (error || !profile) redirect('/onboarding')
   if (profile.status === 'suspended') redirect('/login?error=This account is suspended.')
   if (!profile.onboarding_completed) redirect('/onboarding')
+
   const isEmployer = profile.role === 'employer'
   const { data: jobs } = isEmployer
     ? await supabase.from('jobs').select('id, title, status, location, pay_amount, pay_currency, created_at').eq('employer_id', userId).order('created_at', { ascending: false }).limit(5)
     : await supabase.from('jobs').select('id, title, status, location, pay_amount, pay_currency, created_at').eq('status', 'open').order('created_at', { ascending: false }).limit(5)
-  const { data: employments } = await (supabase.rpc as unknown as (name: string) => Promise<{ data: Array<{ employment_id:string }> | null; error:unknown }> )('get_my_employments')
+
+  const { data: employments } = await supabase.rpc('get_my_employments')
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-10 text-white"><div className="mx-auto max-w-6xl">
