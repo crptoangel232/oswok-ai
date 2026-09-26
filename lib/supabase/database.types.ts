@@ -22,6 +22,63 @@ export type Database = {
       employer_profiles: { Row: { user_id: string; organisation_name: string | null; organisation_type: string | null; website: string | null; created_at: string; updated_at: string }; Insert: { user_id: string; organisation_name?: string | null; organisation_type?: string | null; website?: string | null; created_at?: string; updated_at?: string }; Update: { user_id?: string; organisation_name?: string | null; organisation_type?: string | null; website?: string | null; created_at?: string; updated_at?: string }; Relationships: [] }
       jobs: { Row: { id: string; employer_id: string; title: string; description: string; category: string | null; location: string | null; pay_amount: number; pay_currency: string; status: Database['public']['Enums']['job_status']; created_at: string; updated_at: string }; Insert: { id?: string; employer_id: string; title: string; description: string; category?: string | null; location?: string | null; pay_amount: number; pay_currency?: string; status?: Database['public']['Enums']['job_status']; created_at?: string; updated_at?: string }; Update: { id?: string; employer_id?: string; title?: string; description?: string; category?: string | null; location?: string | null; pay_amount?: number; pay_currency?: string; status?: Database['public']['Enums']['job_status']; created_at?: string; updated_at?: string }; Relationships: [] }
       job_skills: { Row: { job_id: string; skill_id: string; required: boolean }; Insert: { job_id: string; skill_id: string; required?: boolean }; Update: { job_id?: string; skill_id?: string; required?: boolean }; Relationships: [] }
+      payout_requests: {
+        Row: {
+          account_phone: string
+          amount: number
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          provider: string
+          provider_reference: string | null
+          status: string
+          updated_at: string
+          worker_id: string
+        }
+        Insert: {
+          account_phone: string
+          amount: number
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          provider: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+          worker_id: string
+        }
+        Update: {
+          account_phone?: string
+          amount?: number
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          provider?: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+          worker_id?: string
+        }
+        Relationships: [{ foreignKeyName: "payout_requests_worker_id_fkey"; columns: ["worker_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      wallet_accounts: {
+        Row: { balance: number; created_at: string; currency: string; status: string; updated_at: string; user_id: string }
+        Insert: { balance?: number; created_at?: string; currency?: string; status?: string; updated_at?: string; user_id: string }
+        Update: { balance?: number; created_at?: string; currency?: string; status?: string; updated_at?: string; user_id?: string }
+        Relationships: [{ foreignKeyName: "wallet_accounts_user_id_fkey"; columns: ["user_id"]; isOneToOne: true; referencedRelation: "profiles"; referencedColumns: ["id"] }]
+      }
+      wallet_ledger: {
+        Row: { amount: number; created_at: string; currency: string; description: string | null; entry_type: string; id: string; payout_request_id: string | null; transaction_id: string | null; user_id: string }
+        Insert: { amount: number; created_at?: string; currency?: string; description?: string | null; entry_type: string; id?: string; payout_request_id?: string | null; transaction_id?: string | null; user_id: string }
+        Update: { amount?: number; created_at?: string; currency?: string; description?: string | null; entry_type?: string; id?: string; payout_request_id?: string | null; transaction_id?: string | null; user_id?: string }
+        Relationships: [
+          { foreignKeyName: "wallet_ledger_transaction_id_fkey"; columns: ["transaction_id"]; isOneToOne: false; referencedRelation: "transactions"; referencedColumns: ["id"] },
+          { foreignKeyName: "wallet_ledger_user_id_fkey"; columns: ["user_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] }
+        ]
+      }
       applications: { Row: { id: string; job_id: string; worker_id: string; status: Database['public']['Enums']['application_status']; cover_note: string | null; created_at: string; updated_at: string }; Insert: { id?: string; job_id: string; worker_id: string; status?: Database['public']['Enums']['application_status']; cover_note?: string | null; created_at?: string; updated_at?: string }; Update: { id?: string; job_id?: string; worker_id?: string; status?: Database['public']['Enums']['application_status']; cover_note?: string | null; created_at?: string; updated_at?: string }; Relationships: [] }
       employments: { Row: { id: string; job_id: string; application_id: string; employer_id: string; worker_id: string; status: string; started_at: string; completed_at: string | null; created_at: string; updated_at: string }; Insert: { id?: string; job_id: string; application_id: string; employer_id: string; worker_id: string; status?: string; started_at?: string; completed_at?: string | null; created_at?: string; updated_at?: string }; Update: { id?: string; job_id?: string; application_id?: string; employer_id?: string; worker_id?: string; status?: string; started_at?: string; completed_at?: string | null; created_at?: string; updated_at?: string }; Relationships: [] }
       matches: { Row: { id: string; job_id: string; worker_id: string; score: number | null; reason: string | null; created_at: string }; Insert: { id?: string; job_id: string; worker_id: string; score?: number | null; reason?: string | null; created_at?: string }; Update: { id?: string; job_id?: string; worker_id?: string; score?: number | null; reason?: string | null; created_at?: string }; Relationships: [] }
@@ -41,6 +98,9 @@ export type Database = {
       get_my_employments: { Args: never; Returns: { employer_id: string; employer_name: string; employment_id: string; job_id: string; job_title: string; started_at: string; status: string; worker_id: string; worker_name: string }[] }
       get_my_job_applicants: { Args: { target_job_id: string }; Returns: { application_id: string; applied_at: string; availability: string; cover_note: string; experience_years: number; hourly_rate: number; job_id: string; status: string; verification_status: string; worker_bio: string; worker_id: string; worker_location: string; worker_name: string; worker_phone: string }[] }
       get_my_profile: { Args: never; Returns: { bio: string; full_name: string; id: string; location: string; onboarding_completed: boolean; role: Database['public']['Enums']['user_role']; status: Database['public']['Enums']['account_status']; verification_status: Database['public']['Enums']['verification_status'] }[] }
+      get_my_wallet: { Args: never; Returns: { balance: number; currency: string; status: string }[] }
+      get_my_wallet_ledger: { Args: never; Returns: { amount: number; created_at: string; currency: string; description: string; entry_type: string; id: string }[] }
+      request_payout: { Args: { payout_amount: number; payout_phone: string; payout_provider: string }; Returns: string }
       get_my_recommended_jobs: { Args: { limit_count?: number }; Returns: { category: string; description: string; employer_name: string; employer_verification: string; job_id: string; location: string; pay_amount: number; pay_currency: string; reason: string; score: number; title: string }[] }
       get_public_employer_profile: { Args: { target_user_id: string }; Returns: { avatar_url: string; bio: string; full_name: string; location: string; organisation_name: string; organisation_type: string; user_id: string; verification_status: Database['public']['Enums']['verification_status']; website: string }[] }
       get_public_worker_profile: { Args: { target_user_id: string }; Returns: { availability: string; avatar_url: string; bio: string; experience_years: number; full_name: string; hourly_rate: number; location: string; skills: string[]; user_id: string; verification_status: Database['public']['Enums']['verification_status'] }[] }
