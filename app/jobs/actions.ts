@@ -24,7 +24,7 @@ export async function createJob(formData: FormData) {
   if (description.length < 20) fail('/jobs/new', 'Give the job a useful description of at least 20 characters.')
   if (!Number.isFinite(payAmount) || payAmount <= 0) fail('/jobs/new', 'Enter a valid positive pay amount.')
   const { supabase } = await requireUser()
-  const { data: jobId, error } = await supabase.rpc('create_my_job', { new_title: title, new_description: description, new_category: category || null, new_location: location || null, new_pay_amount: payAmount })
+  const { data: jobId, error } = await supabase.rpc('create_my_job', { new_title: title, new_description: description, new_category: category || undefined, new_location: location || undefined, new_pay_amount: payAmount })
   if (error || !jobId) fail('/jobs/new', error?.message ?? 'Unable to create this job.')
   revalidatePath('/jobs'); revalidatePath('/dashboard'); redirect(`/jobs/${jobId}`)
 }
