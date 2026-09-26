@@ -8,6 +8,10 @@ export default async function WalletPage({ searchParams }: { searchParams: Promi
   const { data: claimsData } = await supabase.auth.getClaims()
   if (!claimsData?.claims?.sub) redirect('/login')
 
+  const { data: profile } = await supabase.rpc('get_my_profile').maybeSingle()
+  if (!profile) redirect('/onboarding')
+  if (profile.role !== 'worker') redirect('/dashboard')
+
   const { data: wallet } = await supabase.rpc('get_my_wallet').maybeSingle()
   const { data: ledger } = await supabase.rpc('get_my_wallet_ledger')
 
